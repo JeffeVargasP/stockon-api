@@ -5,12 +5,15 @@
 ### Tecnologias:
 - Web
     - Angular
+        - Tailwindcss
 - Mobile
     - Ionic
 - Backend
-    - Java
-        - SpringBoot
-    - MYSQL
+    - Express
+    - Helmet
+    - Dotenv-safe
+    - Sequelize
+    - MySQL
 
 Build with 💙 and ☕ by:
 
