@@ -11,7 +11,8 @@
 - Backend
     - Express
     - Helmet
-    - Dotenv-safe
+    - dotenv
+    - JWT
     - Sequelize
     - MySQL
 
