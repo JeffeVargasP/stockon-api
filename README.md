@@ -34,6 +34,6 @@ Caso haja tempo, pretendemos adicionar uma função de reconhecimento por imagem
 
 Build with 💙 and ☕ by:
 
-- [JeffeVargasP](https://github.com/JeffeVargasP/) - Infra & Backend
-- [GioGiuseppe](https://github.com/giogiuseppe/) - Mobile
-- [VictorKashima](https://github.com/VictorKashima/) - Scrum Master, Frontend & Backend
+- [Jefferson Vargas](https://github.com/JeffeVargasP/) - Infra & Backend
+- [Giovanni Giuseppe](https://github.com/giogiuseppe/) - Mobile
+- [Victor Kashima](https://github.com/VictorKashima/) - Scrum Master, Frontend & Backend
