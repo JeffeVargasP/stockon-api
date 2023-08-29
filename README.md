@@ -28,9 +28,9 @@ Caso haja tempo, pretendemos adicionar uma função de reconhecimento por imagem
 
 ### Documentos:
 (Iremos atualizar os documentos conforme o progresso do projeto)<br>
-<a href="https://docs.google.com/spreadsheets/d/1NrlsvyTaDI8gnqqLBPp1eQDyFsSg5sEmK99cwXOWSks/edit?usp=sharing" target="_blank">Cronograma</a>
+<a href="https://docs.google.com/spreadsheets/d/1NrlsvyTaDI8gnqqLBPp1eQDyFsSg5sEmK99cwXOWSks/edit?usp=sharing" target="_blank" rel="noopener">Cronograma</a>
 <br>
-<a href="https://docs.google.com/document/d/1LZ42xa13MqypxVIQh8v51XH1fYPPi4x8ADbBZUwYfF4/edit?usp=sharing" target="_blank">Matriz de Habilidade</a>
+<a href="https://docs.google.com/document/d/1LZ42xa13MqypxVIQh8v51XH1fYPPi4x8ADbBZUwYfF4/edit?usp=sharing" target="_blank" rel="noopener">Matriz de Habilidade</a>
 
 Build with 💙 and ☕ by:
 
