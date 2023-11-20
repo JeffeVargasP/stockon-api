@@ -2,10 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dtos/create-user-dto';
 import { PrismaService } from 'src/database/prisma.service';
 import { MailService } from 'src/mail/mail.service';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService, private readonly mail: MailService) {}
+  constructor(private readonly prisma: PrismaService, private readonly mail: MailService, private readonly authService: AuthService) {}
 
   async loginUser(email: string) {
 
@@ -14,6 +15,7 @@ export class UserService {
         message: 'Email is required',
       };
     }
+
 
     const user = await this.findUserByEmail(email);
 
@@ -29,14 +31,51 @@ export class UserService {
       };
     }
 
-    
+    const stayLoggedKey = await this.authService.signIn(user.email, user.stayLogged);
 
-    await this.mail.loginMail(user.name, user.email);
+    await this.mail.loginMail(user.name, user.email, stayLoggedKey);
+
+    await this.prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        stayLoggedKey: stayLoggedKey,
+      },
+    });
 
     return {
       message: 'User logged in successfully',
       name: user.name,
       email: user.email,
+    };
+
+  }
+   
+  async stayLogged(stayLoggedKey: string) {
+
+    if (!stayLoggedKey) {
+      return {
+        message: 'Stay logged key is required',
+      };
+    }
+
+    const userByStayLoggedKey = await this.prisma.user.findFirst({
+      where: {
+        stayLoggedKey: stayLoggedKey,
+      },
+    });
+
+    if (!userByStayLoggedKey) {
+      return {
+        message: 'User not found',
+      };
+    }
+
+    return {
+      message: 'User logged in successfully',
+      name: userByStayLoggedKey.name,
+      email: userByStayLoggedKey.email,
     };
 
   }

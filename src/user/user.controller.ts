@@ -7,14 +7,19 @@ export class UserController {
 
     constructor(private readonly userService: UserService) {}
 
-    @Get('')
-    loginUser(@Body() email: string): object {
+    @Get('login')
+    loginUser(@Body('email') email: string): object {
         return this.userService.loginUser(email);
     }
 
     @Get(':email')
     getUser(@Param('email') email: string): object {
         return this.userService.findUserByEmail(email);
+    }
+
+    @Patch('/login/:stayLoggedKey')
+    stayLogged(@Param('stayLoggedKey') stayLoggedKey: string): object {
+        return this.userService.stayLogged(stayLoggedKey);
     }
 
     @Post()

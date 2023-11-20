@@ -1,23 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
-import jsonwebtoken from 'jsonwebtoken';
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 @Injectable()
 export class AuthService {
+  async signIn(email: string, stayLogged: boolean) {
+    const token = jwt.sign({ email: email }, process.env.JWT_SECRET, {
+      expiresIn: stayLogged ? '30d' : '1d',
+    });
 
-    constructor(private userService: UserService) { }
-
-    async signIn(email: string, staySigned: boolean) {
-        const user = await this.userService.findUserByEmail(email);
-        if (!user) {
-            return null;
-        }
-
-        const secret = process.env.JWT_SECRET;
-        const token = jsonwebtoken
-        
-
-        return user;
-    }
-
+    return token;
+  }
 }

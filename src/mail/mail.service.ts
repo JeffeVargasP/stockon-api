@@ -157,7 +157,7 @@ export class MailService {
         <div class="container">
           <h2>Olá, ${name}!</h2>
           <p>Que bom ver você aqui! Agora que você já tem seu e-mail ativado, basta clicar no link abaixo para fazer login na sua conta e começar a usar o StockON!</p>
-          <a href="http://localhost:3000/active/${stayLoggedKey}" class="btn">Entrar</a>
+          <a href="http://localhost:3000/user/login/${stayLoggedKey}" class="btn">Entrar</a>
         </div>
       </body>
       
