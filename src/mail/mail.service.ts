@@ -75,7 +75,7 @@ export class MailService {
         <div class="container">
           <h2>Olá, ${name}!</h2>
           <p>Para ativar sua conta no Stock ON, clique no botão abaixo:</p>
-          <a href="http://localhost:3000/active/${activationKey}" class="btn">Ativar conta</a>
+          <a href="http://localhost:3000/user/active/${activationKey}" class="btn">Ativar conta</a>
         </div>
       </body>
       

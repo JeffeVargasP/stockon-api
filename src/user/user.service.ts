@@ -8,7 +8,7 @@ import { AuthService } from 'src/auth/auth.service';
 export class UserService {
   constructor(private readonly prisma: PrismaService, private readonly mail: MailService, private readonly authService: AuthService) {}
 
-  async loginUser(email: string) {
+  async loginUser(email: string, stayLogged: boolean) {
 
     if (!email) {
       return {
@@ -41,6 +41,7 @@ export class UserService {
       },
       data: {
         stayLoggedKey: stayLoggedKey,
+        stayLogged:  stayLogged,
       },
     });
 
@@ -81,6 +82,7 @@ export class UserService {
   }
 
   async findUserByEmail(email: string) {
+    
     return await this.prisma.user.findUnique({
       where: {
         email: email,

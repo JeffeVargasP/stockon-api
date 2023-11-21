@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dtos/create-user-dto';
+import { LoginUserDto } from './dtos/login-user-dto';
 
 @Controller('user')
 export class UserController {
@@ -8,8 +9,8 @@ export class UserController {
     constructor(private readonly userService: UserService) {}
 
     @Get('login')
-    loginUser(@Body('email') email: string): object {
-        return this.userService.loginUser(email);
+    loginUser(@Body() data: LoginUserDto): object {
+        return this.userService.loginUser(data.email, data.stayLogged);
     }
 
     @Get(':email')
@@ -27,7 +28,7 @@ export class UserController {
         return this.userService.createUser(createUserDto);
     }
 
-    @Patch(':activationKey')
+    @Patch('/active/:activationKey')
     activeUser(@Param('activationKey') activationKey: string): object {
         return this.userService.activeUser(activationKey);
     }
