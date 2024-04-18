@@ -1,23 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dtos/create-user-dto';
 import { PrismaService } from 'src/database/prisma.service';
-import { MailService } from 'src/mail/mail.service';
 import { AuthService } from 'src/auth/auth.service';
+import User from './user.interface';
+import { isStrongPassword } from 'class-validator';
+import { LoginUserDto } from './dtos/login-user-dto';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService, private readonly mail: MailService, private readonly authService: AuthService) {}
+  constructor(private readonly prisma: PrismaService, private readonly authService: AuthService) { }
 
-  async loginUser(email: string, stayLogged: boolean) {
+  async loginUser(loginUserDTO: LoginUserDto): Promise<object> {
 
-    if (!email) {
+    if (!loginUserDTO.email || !loginUserDTO.password) {
+
       return {
-        message: 'Email is required',
+        message: 'Email and password are required',
       };
     }
 
-
-    const user = await this.findUserByEmail(email);
+    const user = await this.prisma.user.findFirst({
+      where: {
+        email: loginUserDTO.email,
+      },
+    });
 
     if (!user) {
       return {
@@ -25,148 +31,102 @@ export class UserService {
       };
     }
 
-    if (!user.active) {
+    const isPasswordValid = await this.authService.comparePasswords(loginUserDTO.password, user.password);
+
+    if (!isPasswordValid) {
       return {
-        message: 'User not activated',
+        message: 'Invalid password',
       };
     }
 
-    const stayLoggedKey = await this.authService.signIn(user.email, user.stayLogged);
-
-    await this.mail.loginMail(user.name, user.email, stayLoggedKey);
-
-    await this.prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        stayLoggedKey: stayLoggedKey,
-        stayLogged:  stayLogged,
-      },
-    });
+    const token = await this.authService.generateToken(user.email, user.id.toString());
 
     return {
       message: 'User logged in successfully',
       name: user.name,
       email: user.email,
-    };
-
-  }
-   
-  async stayLogged(stayLoggedKey: string) {
-
-    if (!stayLoggedKey) {
-      return {
-        message: 'Stay logged key is required',
-      };
+      token: token,
     }
-
-    const userByStayLoggedKey = await this.prisma.user.findFirst({
-      where: {
-        stayLoggedKey: stayLoggedKey,
-      },
-    });
-
-    if (!userByStayLoggedKey) {
-      return {
-        message: 'User not found',
-      };
-    }
-
-    return {
-      message: 'User logged in successfully',
-      name: userByStayLoggedKey.name,
-      email: userByStayLoggedKey.email,
-    };
 
   }
 
-  async findUserByEmail(email: string) {
-    
-    return await this.prisma.user.findUnique({
+  async getUsers(): Promise<User[]> {
+    return await this.prisma.user.findMany();
+  }
+
+  async findOne(email: string): Promise<User> {
+    return await this.prisma.user.findFirst({
       where: {
         email: email,
-      },
+      }
     });
   }
 
-  async createUser(createUserDTO): Promise<object> {
-    const emailExists = await this.findUserByEmail(createUserDTO.email);
+  async createUser(createUserDTO: CreateUserDto): Promise<object> {
 
-    if (emailExists) {
+    const checkUser = await this.prisma.user.findFirst({
+      where: {
+        email: createUserDTO.email,
+      }
+    });
+
+    if (checkUser) {
       return {
-        message: 'Email already exists',
-      };
+        message: 'User already exists',
+      }
     }
-    
-    const newUser = await await this.prisma.user.create({
-      data: createUserDTO,
+
+    const isPasswordStrong = isStrongPassword(createUserDTO.password);
+
+    if (!isPasswordStrong) {
+      return {
+        message: 'Password is not strong',
+      }
+    }
+
+    const password = await this.authService.hashPassword(createUserDTO.password);
+
+    const newUser = await this.prisma.user.create({
+      data: {
+        name: createUserDTO.name,
+        email: createUserDTO.email,
+        password: password,
+      },
+    });
+
+    return newUser;
+  }
+
+  async deleteUser(id: string): Promise<object> {
+
+    if (!id) {
+      return {
+        message: 'ID is required',
+      }
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: parseInt(id),
+      }
     })
 
-    await this.mail.activationMail(newUser.name, newUser.email, newUser.activationKey)
-
-    return {
-      message: 'User created successfully',
-      name: newUser.name,
-      email: newUser.email,
-    }
-
-
-  }
-
-  async activeUser(activationKey: string): Promise<object> {
-    const userByActivationKey = await this.prisma.user.findFirst({
-      where: {
-        activationKey: activationKey,
-      },
-    });
-
-    if (!userByActivationKey) {
+    if (!user) {
       return {
         message: 'User not found',
-      };
-    }
-
-    await this.prisma.user.update({
-      where: {
-        id: userByActivationKey.id,
-      },
-      data: {
-        active: true,
-        activationKey: null,
-      },
-    });
-
-    return {
-      message: 'User activated successfully',
-      name: userByActivationKey.name,
-      email: userByActivationKey.email,
-    };
-  }
-
-  async deleteUser(deleteKey: string): Promise<object> {
-    const userByDeleteKey = await this.prisma.user.findFirst({
-      where: {
-        deleteKey: deleteKey,
-      },
-    });
-
-    if (!userByDeleteKey) {
-      return {
-        message: 'User not found',
-      };
+      }
     }
 
     await this.prisma.user.delete({
       where: {
-        id: userByDeleteKey.id,
-      },
-    });
+        id: parseInt(id),
+      }
+    })
 
     return {
       message: 'User deleted successfully',
-      name: userByDeleteKey.name,
-      email: userByDeleteKey.email,
-    };
+      name: user.name,
+    }
+
   }
 }
