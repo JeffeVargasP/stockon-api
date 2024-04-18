@@ -41,13 +41,13 @@ export class CardController {
       }),
     }),
   )
-  createCard(
-    @UploadedFile() file: Express.Multer.File,
-    @Body() CreateCardDto,
-    @Body('email') email: string,
-  ): object {
-    return this.cardService.createCard(email, file, CreateCardDto);
-  }
+  // createCard(
+  //   @UploadedFile() file: Express.Multer.File,
+  //   @Body() CreateCardDto,
+  //   @Body('email') email: string,
+  // ): object {
+  //   return this.cardService.createCard(email, file, CreateCardDto);
+  // }
 
   @Patch(':cardId')
   updateCard(): object {

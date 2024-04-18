@@ -24,32 +24,29 @@ export class CardService {
     };
   }
 
-  async createCard(email: string, file: any, data: CreateCardDto): Promise<object> {
+  // async createCard(email: string, file: any, data: CreateCardDto): Promise<object> {
 
-    const user = await this.userService.findUserByEmail(email);
+  //   const newCard = this.prismaService.card.create({
+  //       data: {
+  //           name: data.name,
+  //           thumb: file.path,
+  //           brand: data.brand,
+  //           color: data.color,
+  //           validity: data.validity,
+  //           amount: data.amount,
+  //           weight: data.weight,
+  //           state: data.state,
+  //           user: {
+  //               connect: {
+  //                   id: user.id
+  //               }
+  //           }
+  //       }
+  //   });
 
-    const newCard = this.prismaService.card.create({
-        data: {
-            name: data.name,
-            thumb: file.path,
-            brand: data.brand,
-            color: data.color,
-            model: data.model,
-            validity: data.validity,
-            amount: data.amount,
-            weight: data.weight,
-            state: data.state,
-            user: {
-                connect: {
-                    id: user.id
-                }
-            }
-        }
-    });
+  //   return newCard;
 
-    return newCard;
-
-  }
+  // }
 
   updateCard(): object {
     return {
