@@ -1,49 +1,38 @@
-import { Injectable } from '@nestjs/common';
+import {
+    Injectable,
+    NotFoundException,
+    UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { hash, compare } from 'bcrypt';
-import { jwtConstants } from './constants';
-import { UserService } from 'src/user/user.service';
-require('dotenv').config();
+import { AuthEntity } from './entity/auth.entity';
+import { PrismaService } from 'src/prisma/prisma.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
+    constructor(private prisma: PrismaService, private jwtService: JwtService) { }
 
-  constructor(private jwtService: JwtService, private userService: UserService) { }
+    async login(email: string, password: string): Promise<AuthEntity> {
 
-  async hashPassword(password: string) {
+        const user = await this.prisma.user.findUnique({ where: { email: email } });
 
-    return await hash(password, 10);
+        if (!user) {
+            throw new NotFoundException(`No user found for email: ${email}`);
+        }
 
-  }
+        const isPasswordValid = await bcrypt.compare(password, user.password);
 
-  async comparePasswords(password: string, hashedPassword: string) {
+        if (!isPasswordValid) {
+            throw new UnauthorizedException('Invalid password');
+        }
 
-    return await compare(password, hashedPassword);
+        const payload = {
+            userId: user.id,
+            name: user.name,
+        }
 
-  }
-
-  async generateToken(email: string, userId: string) {
-
-    const token = this.jwtService.signAsync({ email: email, userId: userId, role: 'USER' });
-
-    return token;
-  }
-
-  async authenticateToken(token: string) {
-
-    return this.jwtService.verifyAsync(token, { secret: jwtConstants.secret });
-
-  }
-
-  async signIn(email: string, password: string) {
-
-    const user = await this.userService.findOne(email);
-    const userId = user.id;
-    if (user && await this.comparePasswords(password, user.password)) {
-      return { token: await this.generateToken(email, userId.toString()) };
+        return {
+            accessToken: await this.jwtService.signAsync(payload, { secret: process.env.JWT_SECRET}),
+        };
     }
-    return null;
-
-  }
-
 }
