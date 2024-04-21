@@ -18,10 +18,10 @@ enum State {
 }
 
 model User {
-  id           Int       @id @default(autoincrement())
+  id           String    @id @default(uuid())
   createdAt    DateTime  @default(now()) @db.DateTime(3)
   updatedAt    DateTime  @updatedAt @db.DateTime(3)
-  name         String
+  name         String?
   email        String    @unique
   password     String
   biography    String?
@@ -34,9 +34,9 @@ model Card {
   id           Int      @id @default(autoincrement())
   createdAt    DateTime @default(now()) @db.DateTime(3)
   updatedAt    DateTime @updatedAt @db.DateTime(3)
-  userId       Int
+  userId       String
   thumb        String?
-  name         String?
+  name         String
   brand        String?
   weight       String?
   color        String?
