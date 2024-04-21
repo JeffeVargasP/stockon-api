@@ -1,72 +1,31 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dtos/create-user-dto';
-import { PrismaService } from 'src/database/prisma.service';
-import { AuthService } from 'src/auth/auth.service';
+import { CreateUserDto } from './dto/create-user-dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 import User from './user.interface';
-import { isStrongPassword } from 'class-validator';
-import { LoginUserDto } from './dtos/login-user-dto';
+import { UpdateUserDto } from './dto/update-user-dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService, private readonly authService: AuthService) { }
+  constructor(private readonly prisma: PrismaService) { }
 
-  async loginUser(loginUserDTO: LoginUserDto): Promise<object> {
-
-    if (!loginUserDTO.email || !loginUserDTO.password) {
-
-      return {
-        message: 'Email and password are required',
-      };
-    }
-
-    const user = await this.prisma.user.findFirst({
-      where: {
-        email: loginUserDTO.email,
-      },
-    });
-
-    if (!user) {
-      return {
-        message: 'User not found',
-      };
-    }
-
-    const isPasswordValid = await this.authService.comparePasswords(loginUserDTO.password, user.password);
-
-    if (!isPasswordValid) {
-      return {
-        message: 'Invalid password',
-      };
-    }
-
-    const token = await this.authService.generateToken(user.email, user.id.toString());
-
-    return {
-      message: 'User logged in successfully',
-      name: user.name,
-      email: user.email,
-      token: token,
-    }
-
-  }
-
-  async getUsers(): Promise<User[]> {
+  async findAll(): Promise<User[]> {
     return await this.prisma.user.findMany();
   }
 
-  async findOne(email: string): Promise<User> {
+  async findOne(id: string): Promise<User> {
     return await this.prisma.user.findFirst({
       where: {
-        email: email,
+        id: id,
       }
     });
   }
 
-  async createUser(createUserDTO: CreateUserDto): Promise<object> {
+  async create(createUserDto: CreateUserDto): Promise<object> {
 
     const checkUser = await this.prisma.user.findFirst({
       where: {
-        email: createUserDTO.email,
+        email: createUserDto.email,
       }
     });
 
@@ -76,28 +35,37 @@ export class UserService {
       }
     }
 
-    const isPasswordStrong = isStrongPassword(createUserDTO.password);
+    const hashedPassword = await await bcrypt.hash(
+      createUserDto.password,
+      parseInt(process.env.ROUNDSOFHASHING),
+    )
 
-    if (!isPasswordStrong) {
-      return {
-        message: 'Password is not strong',
-      }
-    }
+    createUserDto.password = hashedPassword;
 
-    const password = await this.authService.hashPassword(createUserDTO.password);
-
-    const newUser = await this.prisma.user.create({
-      data: {
-        name: createUserDTO.name,
-        email: createUserDTO.email,
-        password: password,
-      },
+    await this.prisma.user.create({
+      data: createUserDto,
     });
 
-    return newUser;
   }
 
-  async deleteUser(id: string): Promise<object> {
+  async update(id: string, updateUserDto: UpdateUserDto) {
+
+    updateUserDto.bornDate = new Date(updateUserDto.bornDate).toISOString();
+
+    if (updateUserDto.password) {
+      updateUserDto.password = await bcrypt.hash(
+        updateUserDto.password,
+        parseInt(process.env.ROUNDSOFHASHING),
+      );
+    }
+
+    return this.prisma.user.update({
+      where: { id },
+      data: updateUserDto,
+    });
+  }
+
+  async remove(id: string): Promise<object> {
 
     if (!id) {
       return {
@@ -107,7 +75,7 @@ export class UserService {
 
     const user = await this.prisma.user.findUnique({
       where: {
-        id: parseInt(id),
+        id: id,
       }
     })
 
@@ -119,7 +87,7 @@ export class UserService {
 
     await this.prisma.user.delete({
       where: {
-        id: parseInt(id),
+        id: id,
       }
     })
 
@@ -129,4 +97,5 @@ export class UserService {
     }
 
   }
+
 }

@@ -1,38 +1,40 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dtos/create-user-dto';
-import { LoginUserDto } from './dtos/login-user-dto';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { CreateUserDto } from './dto/create-user-dto';
+import { UpdateUserDto } from './dto/update-user-dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('user')
 export class UserController {
 
     constructor(private readonly userService: UserService) {}
 
-    @Get()
-    @UseGuards(AuthGuard)
-    getUsers(): object {
-        return this.userService.getUsers();
-    }
-
-    @Get(':email')
-    findOne(@Param('email') email: string): object {
-        return this.userService.findOne(email);
-    }
-
-    @Post()
-    loginUser(@Body() loginUserDto: LoginUserDto): object {
-        return this.userService.loginUser(loginUserDto);
-    }
-
     @Post('create')
-    createUser(@Body() createUserDto: CreateUserDto): object {
-        return this.userService.createUser(createUserDto);
+    create(@Body() createUserDto: CreateUserDto): object {
+        return this.userService.create(createUserDto);
+    }
+
+    @Get()
+    @UseGuards(JwtAuthGuard)
+    findAll(): object {
+        return this.userService.findAll();
+    }
+
+    @Get(':id')
+    @UseGuards(JwtAuthGuard)
+    findOne(@Param('id') id: string): object {
+        return this.userService.findOne(id);
+    }
+
+    @Patch(':id')
+    @UseGuards(JwtAuthGuard)
+    update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto): object {
+        return this.userService.update(id, updateUserDto);
     }
 
     @Delete(':id')
-    @UseGuards(AuthGuard)
+    @UseGuards(JwtAuthGuard)
     deleteUser(@Param('id') id: string): object {
-        return this.userService.deleteUser(id);
+        return this.userService.remove(id);
     }
 }
