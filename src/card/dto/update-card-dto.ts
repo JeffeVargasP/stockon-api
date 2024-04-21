@@ -1,30 +1,38 @@
 import { $Enums } from "@prisma/client";
-import { IsDecimal, IsEmail, IsInt, IsNumber, IsString } from "class-validator";
+import { IsDecimal, IsEmail, IsInt, IsNotEmpty, IsNumber, IsString } from "class-validator";
 
-export class CreateCardDto {
+export class UpdateCardDto {
    
     @IsString()
+    @IsNotEmpty()
     thumb: string;
 
     @IsString()
+    @IsNotEmpty()
     name: string;
 
     @IsString()
+    @IsNotEmpty()
     brand: string;
 
     @IsString()
+    @IsNotEmpty()
     weight: string;
 
     @IsString()
+    @IsNotEmpty()
     color: string;
 
     @IsString()
-    model: string;
-
-    @IsString()
+    @IsNotEmpty()
     validity: string;
 
     @IsString()
+    @IsNotEmpty()
+    purchaseDate: string;
+
+    @IsString()
+    @IsNotEmpty()
     amount: string;
 
     state: $Enums.State;
