@@ -1,0 +1,18 @@
+# docker-compose.yml
+
+services:
+
+  postgresql:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=stockon
+    volumes:
+      - postgresql:/var/lib/postgresql/data
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+
+volumes:
+  postgresql:
