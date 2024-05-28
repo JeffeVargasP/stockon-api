@@ -7,7 +7,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 @Controller('user')
 export class UserController {
 
-    constructor(private readonly userService: UserService) {}
+    constructor(private readonly userService: UserService) { }
 
     @Post()
     create(@Body() createUserDto: CreateUserDto): object {
@@ -24,6 +24,12 @@ export class UserController {
     @UseGuards(JwtAuthGuard)
     findOne(@Param('id') id: string): object {
         return this.userService.findOne(id);
+    }
+
+    @Get('email/:email')
+    @UseGuards(JwtAuthGuard)
+    findByEmail(@Param('email') email: string): object {
+        return this.userService.findByEmail(email);
     }
 
     @Patch(':id')

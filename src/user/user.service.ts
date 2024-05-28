@@ -10,15 +10,48 @@ export class UserService {
   constructor(private readonly prisma: PrismaService) { }
 
   async findAll(): Promise<User[]> {
-    return await this.prisma.user.findMany();
+    const users = await this.prisma.user.findMany();
+
+    if (!users) {
+      throw new HttpException('Users not found', 404);
+    }
+
+    return users;
+  }
+
+  async findByEmail(email: string): Promise<User> {
+
+    if (!email) {
+      throw new HttpException('Email is required', 400);
+    }
+
+    const userFound = await this.prisma.user.findFirst({
+      where: { email }
+    });
+
+    if (!userFound) {
+      throw new HttpException('User not found', 404);
+    }
+
+    return userFound;
   }
 
   async findOne(id: string): Promise<User> {
-    return await this.prisma.user.findFirst({
-      where: {
-        id: id,
-      }
+
+    if (!id) {
+      throw new HttpException('ID is required', 400);
+    }
+
+    const userFound = await this.prisma.user.findUnique({
+      where: { id }
     });
+
+    if (!userFound) {
+      throw new HttpException('User not found', 404);
+    }
+
+    return userFound;
+
   }
 
   async create(createUserDto: CreateUserDto): Promise<object> {
