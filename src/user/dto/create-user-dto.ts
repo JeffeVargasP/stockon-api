@@ -2,6 +2,10 @@ import { IsEmail, IsNotEmpty, IsString, IsStrongPassword, MinLength } from "clas
 
 export class CreateUserDto {
 
+    @IsNotEmpty()
+    @IsString({message: 'Name is required'})
+    name: string;
+
     @IsEmail({}, {message: 'Email is required'})
     @IsNotEmpty()
     email: string;
