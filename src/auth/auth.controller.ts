@@ -11,6 +11,7 @@ export class AuthController {
 
   @Post('login')
   login(@Body() { email, password }: LoginDto) {
+    password = password.toString();
     return this.authService.login(email, password);
   }
 }
