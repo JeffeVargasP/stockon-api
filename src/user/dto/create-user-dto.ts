@@ -8,7 +8,7 @@ export class CreateUserDto {
 
     @IsString({message: 'Password is required'})
     @IsNotEmpty()
-    # @IsStrongPassword()
+    // @IsStrongPassword()
     @MinLength(6)
     password: string;
 
